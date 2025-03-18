@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common['x-auth-token'] = token;
       
       try {
-        const res = await axios.get('http://localhost:5000/api/auth/user');
+        const res = await axios.get('/api/auth/user');
         setUser(res.data);
         setIsAuthenticated(true);
       } catch (err) {
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
   // Register user
   const register = async (formData) => {
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', formData);
+      const res = await axios.post('/api/auth/register', formData);
       
       localStorage.setItem('token', res.data.token);
       axios.defaults.headers.common['x-auth-token'] = res.data.token;
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
   // Login user
   const login = async (formData) => {
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const res = await axios.post('/api/auth/login', formData);
       
       localStorage.setItem('token', res.data.token);
       axios.defaults.headers.common['x-auth-token'] = res.data.token;
