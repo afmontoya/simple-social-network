@@ -1,196 +1,126 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import AuthContext from '../../context/AuthContext';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
-    password2: ''
+    confirmPassword: ''
   });
-  const { username, email, password, password2 } = formData;
-  
-  const [formErrors, setFormErrors] = useState({});
-  const { register, error } = useContext(AuthContext);
+  const [error, setError] = useState('');
+  const { register } = useAuth();
   const navigate = useNavigate();
 
-  const onChange = e => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
-  const validateForm = () => {
-    const errors = {};
-    
-    if (password !== password2) {
-      errors.password2 = 'Passwords do not match';
-    }
-    
-    if (password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
-    }
-    
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const onSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      const success = await register({
-        username,
-        email,
-        password
-      });
-      
-      if (success) {
-        navigate('/');
-      }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    try {
+      await register(formData.username, formData.email, formData.password);
+      navigate('/');
+    } catch (err) {
+      setError('Registration failed. Please try again.');
     }
   };
 
   return (
-    <div style={{ 
-      maxWidth: '400px', 
-      margin: '40px auto',
-      padding: '30px',
-      background: 'white',
-      borderRadius: '12px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-    }}>
-      <h2 style={{ 
-        textAlign: 'center', 
-        margin: '0 0 25px 0',
-        color: '#1877f2',
-        fontSize: '28px'
-      }}>Register</h2>
-      
-      {error && (
-        <div style={{ 
-          color: '#e41e3f', 
-          background: '#ffebe9',
-          padding: '12px',
-          borderRadius: '8px',
-          marginBottom: '20px', 
-          textAlign: 'center',
-          fontSize: '14px'
-        }}>
-          {error}
-        </div>
-      )}
-      
-      <form onSubmit={onSubmit}>
-        <div style={{ marginBottom: '16px' }}>
-          <input
-            type="text"
-            placeholder="Username"
-            name="username"
-            value={username}
-            onChange={onChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '12px 15px', 
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '15px',
-              boxSizing: 'border-box'
-            }}
-          />
-        </div>
-        <div style={{ marginBottom: '16px' }}>
-          <input
-            type="email"
-            placeholder="Email Address"
-            name="email"
-            value={email}
-            onChange={onChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '12px 15px', 
-              border: '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '15px',
-              boxSizing: 'border-box'
-            }}
-          />
-        </div>
-        <div style={{ marginBottom: '16px' }}>
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
-            value={password}
-            onChange={onChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '12px 15px', 
-              border: formErrors.password ? '1px solid #e41e3f' : '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '15px',
-              boxSizing: 'border-box'
-            }}
-          />
-          {formErrors.password && (
-            <div style={{ color: '#e41e3f', fontSize: '13px', marginTop: '5px', paddingLeft: '5px' }}>
-              {formErrors.password}
-            </div>
-          )}
-        </div>
-        <div style={{ marginBottom: '25px' }}>
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            name="password2"
-            value={password2}
-            onChange={onChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '12px 15px', 
-              border: formErrors.password2 ? '1px solid #e41e3f' : '1px solid #ddd',
-              borderRadius: '8px',
-              fontSize: '15px',
-              boxSizing: 'border-box'
-            }}
-          />
-          {formErrors.password2 && (
-            <div style={{ color: '#e41e3f', fontSize: '13px', marginTop: '5px', paddingLeft: '5px' }}>
-              {formErrors.password2}
-            </div>
-          )}
-        </div>
-        <button 
-          type="submit" 
-          style={{ 
-            width: '100%', 
-            padding: '12px 15px', 
-            backgroundColor: '#1877f2', 
-            color: 'white', 
-            border: 'none', 
-            borderRadius: '8px', 
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }}
-        >
-          Register
-        </button>
+    <div className="max-w-md mx-auto">
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
         
-        <div style={{ 
-          textAlign: 'center',
-          padding: '15px 0 0 0',
-          borderTop: '1px solid #eee',
-          marginTop: '25px'
-        }}>
-          <p style={{ color: '#666', fontSize: '14px' }}>
-            Already have an account? <Link to="/login" style={{ color: '#1877f2', textDecoration: 'none', fontWeight: 'bold' }}>Login</Link>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Username
+            </label>
+            <input
+              type="text"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Confirm Password
+            </label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          >
+            Register
+          </button>
+        </form>
+
+        <div className="mt-4 text-center">
+          <p className="text-gray-600">
+            Already have an account?{' '}
+            <Link to="/login" className="text-blue-500 hover:underline">
+              Login
+            </Link>
           </p>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

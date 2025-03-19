@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const UserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
@@ -13,53 +13,61 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
+    lowercase: true
   },
   password: {
     type: String,
     required: true,
     minlength: 6
   },
-  profileImage: {
-    type: String,
-    default: 'default-avatar.png'
-  },
-  bio: {
+  profilePhoto: {
     type: String,
     default: ''
   },
-  following: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
+  bio: {
+    type: String,
+    maxlength: 500,
+    default: ''
+  },
+  location: {
+    type: String,
+    maxlength: 100,
+    default: ''
+  },
+  website: {
+    type: String,
+    maxlength: 200,
+    default: ''
+  },
   followers: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   }],
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
+}, {
+  timestamps: true
 });
 
 // Hash password before saving
-UserSchema.pre('save', async function(next) {
+userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();
   
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
     next();
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
-// Method to compare passwords
-UserSchema.methods.comparePassword = async function(candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+// Method to compare password
+userSchema.methods.comparePassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model('User', UserSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', userSchema);

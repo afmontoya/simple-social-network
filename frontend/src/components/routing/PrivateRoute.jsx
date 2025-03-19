@@ -1,20 +1,29 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Navigate } from 'react-router-dom';
-import AuthContext from '../../context/AuthContext';
-import { CircularProgress, Box } from '@mui/material';
+import { useAuth } from '../../context/AuthContext';
 
 const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useContext(AuthContext);
+  const { user, loading, checkAuth } = useAuth();
+
+  React.useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-        <CircularProgress />
-      </Box>
+      <div className="container mt-5">
+        <div className="row justify-content-center">
+          <div className="col-md-6 text-center">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;

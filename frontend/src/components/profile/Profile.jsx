@@ -1,38 +1,54 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const Profile = () => {
-  const { id } = useParams();
-  
+  const { user } = useAuth();
+
   return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-        <div style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#ddd', marginRight: '20px' }}></div>
-        <div>
-          <h2>Username</h2>
-          <p>Bio: Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    <div className="max-w-4xl mx-auto">
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center space-x-4 mb-6">
+          <img
+            src={user.profilePhoto || '/default-avatar.png'}
+            alt="Profile"
+            className="w-24 h-24 rounded-full object-cover"
+          />
           <div>
-            <span style={{ marginRight: '15px' }}>
-              <strong>10</strong> Posts
-            </span>
-            <span style={{ marginRight: '15px' }}>
-              <strong>120</strong> Followers
-            </span>
-            <span>
-              <strong>45</strong> Following
-            </span>
+            <h1 className="text-2xl font-bold">{user.username}</h1>
+            <p className="text-gray-600">{user.email}</p>
           </div>
-          <button style={{ marginTop: '10px', padding: '5px 15px', backgroundColor: '#1976d2', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-            Follow
-          </button>
         </div>
-      </div>
-      
-      <h3>Posts</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-        {[1, 2, 3, 4, 5, 6].map(item => (
-          <div key={item} style={{ aspectRatio: '1', backgroundColor: '#eee', borderRadius: '5px' }}></div>
-        ))}
+
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">About</h2>
+          <p className="text-gray-600">{user.bio || 'No bio yet'}</p>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">Location</h2>
+          <p className="text-gray-600">{user.location || 'No location set'}</p>
+        </div>
+
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">Website</h2>
+          <p className="text-gray-600">
+            {user.website ? (
+              <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                {user.website}
+              </a>
+            ) : (
+              'No website set'
+            )}
+          </p>
+        </div>
+
+        <Link
+          to="/profile/edit"
+          className="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Edit Profile
+        </Link>
       </div>
     </div>
   );
